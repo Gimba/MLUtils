@@ -18,8 +18,12 @@ with open('./productions/frame_energies.csv','r') as f:
 
 energies = np.asarray(energies)
 
-distances = pd.read_csv('./productions/binding_site_distance_all.dat', nrows=len(energies))
+distances = pd.read_csv('./productions/binding_site_distance_all.dat', nrows=len(energies), sep=r"\s+")
 distances['energy'] = energies
 
-distances.to_csv('training_data_distances_all.csv')
+column_titles = list(distances.columns)
+column_titles[0] = column_titles[-1]
+new_data = distances.reindex(columns=column_titles[:-1])
+
+new_data.to_csv('productions/training_data_distances_all.csv', index=None)
 
