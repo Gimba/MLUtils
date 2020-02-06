@@ -3,7 +3,7 @@
 import numpy as np
 import pandas as pd
 
-with open('./productions/mmpbsa_all_frames/frame_energies.csv','r') as f:
+with open('./productions/frame_energies.csv','r') as f:
     energies = []
     flag = False
     for line in f.readlines():
