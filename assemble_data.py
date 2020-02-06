@@ -24,6 +24,7 @@ distances['energy'] = energies
 column_titles = list(distances.columns)
 column_titles[0] = column_titles[-1]
 new_data = distances.reindex(columns=column_titles[:-1])
+new_data = new_data.sample(frac=1)
 
 new_data.to_csv('productions/training_data_distances_all.csv', index=None)
 
