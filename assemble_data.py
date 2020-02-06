@@ -19,5 +19,5 @@ energies = np.asarray(energies)
 distances = pd.read_csv('./productions/binding_site_distance_all.dat', nrows=len(energies))
 distances['energy'] = energies
 
-print(distances)
+distances.to_csv('training_data_distances_all.csv')
 
