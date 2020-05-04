@@ -26,11 +26,11 @@ with open('./frame_energies_all.csv', 'r') as f:
 energies = np.asarray(energies)
 
 # read in as many lines from the cpptraj generated file as there are values in energies
-metrics = pd.read_csv('binding_site_distance_all.dat', nrows=len(energies), header=0, delim_whitespace=True)
+metrics = pd.read_csv('bindingsite_metrics.dat', nrows=len(energies), header=0, delim_whitespace=True)
 
 # overwrite the first line of the cpptraj data frame with energy values
 metrics['#Frame'] = energies
 # rename first column to energies (not really necessary since column headers are not part of the training data file)
 metrics.rename(columns={'#Frame': 'energies'}, inplace=True)
 
-metrics.to_csv('training_data.csv', sep=',', header=None, index=None)
+metrics.to_csv('training_data_WT_cs25.csv', sep=',', header=None, index=None)
