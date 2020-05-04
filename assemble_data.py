@@ -15,6 +15,7 @@
 # COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import argparse
 import sys
 
 import numpy as np
@@ -22,8 +23,18 @@ import pandas as pd
 
 
 def main(args):
+    parser = argparse.ArgumentParser(description='Merge feature data with target data. The target is in the first '
+                                                 'column.')
+    parser.add_argument('feature_data', nargs='?', help='name of cpptraj generated .dat file holding the feature data',
+                        default="bsite_features.dat")
+    parser.add_argument('target_data', nargs='?', help='name of .csv file holding the target data',
+                        default="frame_energies.csv")
+    parser.add_argument('output', nargs='?', help='name of the training data csv', default="training_data.csv")
+
+    args = parser.parse_args()
+
     # read in MMGBSA Delta G values
-    with open('./frame_energies_all.csv', 'r') as f:
+    with open('frame_energies_all.csv', 'r') as f:
         energies = []
 
         # flag used to start reading in line data
@@ -45,7 +56,7 @@ def main(args):
     energies = np.asarray(energies)
 
     # read in as many lines from the cpptraj generated file as there are values in energies
-    metrics = pd.read_csv('bindingsite_metrics.dat', nrows=len(energies), header=0, delim_whitespace=True)
+    metrics = pd.read_csv('bsite_features.dat', nrows=len(energies), header=0, delim_whitespace=True)
 
     # overwrite the first line of the cpptraj data frame with energy values
     metrics['#Frame'] = energies
