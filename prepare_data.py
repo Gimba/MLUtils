@@ -62,6 +62,8 @@ def main(args):
                                                  'angles and distance with target MMGBSA energy values) from all '
                                                  'subfolders into "training_bside_metrics_energy.csv".')
     parser.add_argument('exclude', nargs='?', help='exclude these folders', default="")
+    parser.add_argument('--normalize', dest='normalize', action='store_true',
+                        help='normalize data to range between 0 and 1 (default: False)', default=False)
 
     args = parser.parse_args()
     data = pd.DataFrame()
@@ -79,11 +81,13 @@ def main(args):
         data = data.append(pd.read_csv(path, header=None, index_col=None))
         print('Number of traning data rows:', data.shape[0])
 
-    min_max = list(zip(columns, data.min(), data.max()))
+    if args.normalize:
+        # save minima and maxima in seperate file for rescaling later
+        min_max = list(zip(columns, data.min(), data.max()))
 
-    # normalize data to range of 0 to 1 (not necessary for decision tree methods)
-    data -= data.min()
-    data /= data.max()
+        # normalize data to range of 0 to 1 (not necessary for decision tree methods)
+        data -= data.min()
+        data /= data.max()
 
     # shuffle data (just in case)
     data = data.sample(frac=1)
@@ -92,19 +96,20 @@ def main(args):
     if exclude[0]:
         data.to_csv('training_bside_metrics_energy_ex_' + ''.join(exclude) + '.csv', index=None,
                     header=None)
-
-        # write min max values
-        with open('min_max_ex_' + ''.join(exclude) + '.csv', 'w') as myfile:
-            wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
-            wr.writerow(min_max)
+        if args.normalize:
+            # write min max values
+            with open('min_max_ex_' + ''.join(exclude) + '.csv', 'w') as myfile:
+                wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
+                wr.writerow(min_max)
 
     else:
         data.to_csv('training_bside_metrics_energy.csv', index=None,
                     header=None)
-        # write min max values
-        with open('min_max.csv', 'w') as myfile:
-            wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
-            wr.writerow(min_max)
+        if args.normalize:
+            # write min max values
+            with open('min_max.csv', 'w') as myfile:
+                wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
+                wr.writerow(min_max)
 
 
 if __name__ == '__main__':
