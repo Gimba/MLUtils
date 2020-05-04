@@ -58,33 +58,41 @@ columns = ['energies', '78_369', '78_394', '80_467', '26_249', '26_426', '78_399
 
 
 def main(args):
-    parser = argparse.ArgumentParser(description='Merge training data from all subfolders.')
+    parser = argparse.ArgumentParser(description='Merge training data files (traning_data.csv\'s containing dihedral '
+                                                 'angles and distance with target MMGBSA energy values) from all '
+                                                 'subfolders into "training_bside_metrics_energy.csv".')
     parser.add_argument('exclude', nargs='?', help='exclude these folders', default="")
 
     args = parser.parse_args()
     data = pd.DataFrame()
-    print(data.shape)
     exclude = args.exclude.split(',')
-    print(exclude)
+
+    if args.exclude:
+        print('Excluded folders:', exclude)
+
     for path in Path('.').rglob('training_data.csv'):
         if exclude[0]:
             if any(e in str(path) for e in exclude):
                 print('skipping', path)
                 continue
-        print(path)
+        print('Current folder', path)
         data = data.append(pd.read_csv(path, header=None, index_col=None))
-        print(data.shape)
-    min = round(data.min()[0], 2)
-    max = round(data.max()[0], 2)
+        print('Number of traning data rows:', data.shape[0])
+
     min_max = list(zip(columns, data.min(), data.max()))
 
+    # normalize data to range of 0 to 1 (not necessary for decision tree methods)
     data -= data.min()
     data /= data.max()
-    # shuffle data
+
+    # shuffle data (just in case)
     data = data.sample(frac=1)
+
+    # alter file name if folders are excluded
     if exclude[0]:
         data.to_csv('training_bside_metrics_energy_ex_' + ''.join(exclude) + '.csv', index=None,
                     header=None)
+
         # write min max values
         with open('min_max_ex_' + ''.join(exclude) + '.csv', 'w') as myfile:
             wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
